@@ -133,7 +133,7 @@ export default class ParamModel extends PureComponent {
           }
           <label htmlFor="">
             <span>Parameter content type</span>
-            <ContentType value={ "application/x-www-form-urlencoded" } contentTypes={ "application/x-www-form-urlencoded" } onChange={onChangeConsumes} className="body-param-content-type" />
+            <ContentType value={ consumesValue } contentTypes={ consumes } onChange={onChangeConsumes} className="body-param-content-type" />
           </label>
         </div>
 
