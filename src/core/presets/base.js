@@ -52,6 +52,7 @@ import Info, {
 } from "core/components/info"
 import Footer from "core/components/footer"
 import ParamBody from "core/components/param-body"
+import ParamModel from "core/components/param-model"
 import Curl from "core/components/curl"
 import Schemes from "core/components/schemes"
 import ModelCollapse from "core/components/model-collapse"
@@ -109,6 +110,7 @@ export default function() {
       overview: Overview,
       footer: Footer,
       ParamBody: ParamBody,
+      ParamModel: ParamModel,
       curl: Curl,
       schemes: Schemes,
       modelExample: ModelExample,

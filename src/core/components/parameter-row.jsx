@@ -28,7 +28,7 @@ export default class ParameterRow extends Component {
     let parameter = specSelectors.parameterWithMeta(pathMethod, param.get("name"), param.get("in"))
     let value = parameter ? parameter.get("value") : ""
 
-    if( param.get("in") !== "body" ) {
+    if( param.get("in") !== "body" && param.get("in") !== "model" ) {
       if ( xExampleValue !== undefined && value === undefined && specSelectors.isSwagger2() ) {
         this.onChangeWrapper(xExampleValue)
       } else if ( defaultValue !== undefined && value === undefined ) {
@@ -87,9 +87,23 @@ export default class ParameterRow extends Component {
     // const onChangeWrapper = (value) => onChange(param, value)
     const JsonSchemaForm = getComponent("JsonSchemaForm")
     const ParamBody = getComponent("ParamBody")
+    const ParamModel = getComponent("ParamModel")
     let inType = param.get("in")
     let bodyParam = inType !== "body" ? null
       : <ParamBody getComponent={getComponent}
+                   fn={fn}
+                   param={param}
+                   consumes={ specSelectors.operationConsumes(pathMethod) }
+                   consumesValue={ specSelectors.contentTypeValues(pathMethod).get("requestContentType") }
+                   onChange={onChange}
+                   onChangeConsumes={onChangeConsumes}
+                   isExecute={ isExecute }
+                   specSelectors={ specSelectors }
+                   pathMethod={ pathMethod }
+      />
+
+    let modelParam = inType !== "model" ? null
+      : <ParamModel getComponent={getComponent}
                    fn={fn}
                    param={param}
                    consumes={ specSelectors.operationConsumes(pathMethod) }
@@ -171,7 +185,7 @@ export default class ParameterRow extends Component {
         <td className="col parameters-col_description">
           { param.get("description") ? <Markdown source={ param.get("description") }/> : null }
 
-          { (bodyParam || !isExecute) && isDisplayParamEnum ?
+          { (bodyParam || modelParam || !isExecute) && isDisplayParamEnum ?
             <Markdown className="parameter__enum" source={
                 "<i>Available values</i> : " + paramEnum.map(function(item) {
                     return item
@@ -179,14 +193,14 @@ export default class ParameterRow extends Component {
             : null
           }
 
-          { (bodyParam || !isExecute) && paramDefaultValue !== undefined ?
+          { (bodyParam || modelParam || !isExecute) && paramDefaultValue !== undefined ?
             <Markdown className="parameter__default" source={"<i>Default value</i> : " + paramDefaultValue}/>
             : null
           }
 
           {(isFormData && !isFormDataSupported) && <div>Error: your browser does not support FormData</div>}
 
-          { bodyParam || !isExecute ? null
+          { bodyParam || modelParam || !isExecute ? null
             : <JsonSchemaForm fn={fn}
                               getComponent={getComponent}
                               value={ value }
@@ -206,6 +220,17 @@ export default class ParameterRow extends Component {
                                                 specSelectors={ specSelectors }
                                                 schema={ param.get("schema") }
                                                 example={ bodyParam }/>
+              : null
+          }
+
+          {
+            modelParam && schema ? <ModelExample getComponent={ getComponent }
+                                                specPath={specPath.push("schema")}
+                                                getConfigs={ getConfigs }
+                                                isExecute={ isExecute }
+                                                specSelectors={ specSelectors }
+                                                schema={ param.get("schema") }
+                                                example={ modelParam }/>
               : null
           }
 
