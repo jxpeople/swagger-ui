@@ -348,6 +348,11 @@ export function parameterValues(state, pathMethod, isXml) {
   let paramValues = operationWithMeta(state, ...pathMethod).get("parameters", List())
   return paramValues.reduce( (hash, p) => {
     let value = isXml && p.get("in") === "body" ? p.get("value_xml") : p.get("value")
+
+    console.log("parameterValuesxxxx")
+    console.log(`${p.get("in")}.${p.get("name")}`)
+    console.log(value)
+
     return hash.set(`${p.get("in")}.${p.get("name")}`, value)
   }, fromJS({}))
 }
