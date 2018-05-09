@@ -358,6 +358,11 @@ export const executeRequest = (req) =>
     console.log(req)
 
     let parsedRequest = Object.assign({}, req)
+
+    console.log("parsedRequestqian")
+    console.log(parsedRequest)
+    console.log(fn)
+
     parsedRequest = fn.buildRequest(parsedRequest)
 
     console.log('parsedRequest')
