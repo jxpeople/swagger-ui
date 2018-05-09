@@ -133,13 +133,12 @@ export default class ParamBody extends PureComponent {
           }
           <label htmlFor="">
             <span>Parameter content type</span>
+
             {
-              console.log(consumesValue)
+              this.props.param.get("in")==="model"?
+                <ContentType value={ "application/x-www-form-urlencoded" } contentTypes={ fromJS(["application/x-www-form-urlencoded"]) } onChange={onChangeConsumes} className="body-param-content-type" />
+                : <ContentType value={ consumesValue } contentTypes={ consumes } onChange={onChangeConsumes} className="body-param-content-type" />
             }
-            {
-              console.log(consumes)
-            }
-            <ContentType value={ consumesValue } contentTypes={ consumes } onChange={onChangeConsumes} className="body-param-content-type" />
           </label>
         </div>
 
