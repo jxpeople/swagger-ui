@@ -359,16 +359,12 @@ export const executeRequest = (req) =>
 
     let parsedRequest = Object.assign({}, req)
 
-    console.log('param-count')
-    console.log(parsedRequest.parameters.size())
-    console.log(parsedRequest.parameters.length())
-    console.log(parsedRequest.parameters.length)
-
     console.log('param1')
     console.log(parsedRequest.parameters['book'])
+    console.log(Object.keys(parsedRequest.parameters).length)
     if (parsedRequest.pathName.startsWith('/dubbo-api/')) {
       let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
-      if (parsedRequest.parameters.size() > 0) {
+      if (Object.keys(parsedRequest.parameters).length > 0) {
         url = url + '?'
         Object.keys(parsedRequest.parameters).map((key) => (
           url = url + key + '=' + parsedRequest.parameters[key] + '&'
