@@ -359,11 +359,22 @@ export const executeRequest = (req) =>
 
     let parsedRequest = Object.assign({}, req)
 
-    console.log("parsedRequestqian")
-    console.log(parsedRequest)
-    console.log(fn)
+    if (parsedRequest.pathName.startsWith('/dubbo-api/')) {
+      let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
+      if (parsedRequest.parameters !== null && parsedRequest.parameters.size > 0) {
+        url = url + '?'
+        Object.keys(parsedRequest.parameters).map((key) => (
+          url = url + key + '=' + parsedRequest.parameters[key] + '&'
+        ))
+        url = url.substring(0, url.length - 1)
+      }
+      console.log('url')
+      console.log(url)
 
-    parsedRequest = fn.buildRequest(parsedRequest)
+      parsedRequest.url = url
+    } else {
+      parsedRequest = fn.buildRequest(parsedRequest)
+    }
 
     console.log('parsedRequest')
     console.log(parsedRequest)
