@@ -1,37 +1,37 @@
-import YAML from "js-yaml"
-import { Map } from "immutable"
-import parseUrl from "url-parse"
-import serializeError from "serialize-error"
-import isString from "lodash/isString"
-import debounce from "lodash/debounce"
-import set from "lodash/set"
-import { isJSONObject } from "core/utils"
+import YAML from 'js-yaml'
+import { Map } from 'immutable'
+import parseUrl from 'url-parse'
+import serializeError from 'serialize-error'
+import isString from 'lodash/isString'
+import debounce from 'lodash/debounce'
+import set from 'lodash/set'
+import { isJSONObject } from 'core/utils'
 
 // Actions conform to FSA (flux-standard-actions)
 // {type: string,payload: Any|Error, meta: obj, error: bool}
 
-export const UPDATE_SPEC = "spec_update_spec"
-export const UPDATE_URL = "spec_update_url"
-export const UPDATE_JSON = "spec_update_json"
-export const UPDATE_PARAM = "spec_update_param"
-export const VALIDATE_PARAMS = "spec_validate_param"
-export const SET_RESPONSE = "spec_set_response"
-export const SET_REQUEST = "spec_set_request"
-export const SET_MUTATED_REQUEST = "spec_set_mutated_request"
-export const LOG_REQUEST = "spec_log_request"
-export const CLEAR_RESPONSE = "spec_clear_response"
-export const CLEAR_REQUEST = "spec_clear_request"
-export const CLEAR_VALIDATE_PARAMS = "spec_clear_validate_param"
-export const UPDATE_OPERATION_META_VALUE = "spec_update_operation_meta_value"
-export const UPDATE_RESOLVED = "spec_update_resolved"
-export const UPDATE_RESOLVED_SUBTREE = "spec_update_resolved_subtree"
-export const SET_SCHEME = "set_scheme"
+export const UPDATE_SPEC = 'spec_update_spec'
+export const UPDATE_URL = 'spec_update_url'
+export const UPDATE_JSON = 'spec_update_json'
+export const UPDATE_PARAM = 'spec_update_param'
+export const VALIDATE_PARAMS = 'spec_validate_param'
+export const SET_RESPONSE = 'spec_set_response'
+export const SET_REQUEST = 'spec_set_request'
+export const SET_MUTATED_REQUEST = 'spec_set_mutated_request'
+export const LOG_REQUEST = 'spec_log_request'
+export const CLEAR_RESPONSE = 'spec_clear_response'
+export const CLEAR_REQUEST = 'spec_clear_request'
+export const CLEAR_VALIDATE_PARAMS = 'spec_clear_validate_param'
+export const UPDATE_OPERATION_META_VALUE = 'spec_update_operation_meta_value'
+export const UPDATE_RESOLVED = 'spec_update_resolved'
+export const UPDATE_RESOLVED_SUBTREE = 'spec_update_resolved_subtree'
+export const SET_SCHEME = 'set_scheme'
 
-const toStr = (str) => isString(str) ? str : ""
+const toStr = (str) => isString(str) ? str : ''
 
-export function updateSpec(spec) {
-  const cleanSpec = (toStr(spec)).replace(/\t/g, "  ")
-  if(typeof spec === "string") {
+export function updateSpec (spec) {
+  const cleanSpec = (toStr(spec)).replace(/\t/g, '  ')
+  if (typeof spec === 'string') {
     return {
       type: UPDATE_SPEC,
       payload: cleanSpec
@@ -39,18 +39,18 @@ export function updateSpec(spec) {
   }
 }
 
-export function updateResolved(spec) {
+export function updateResolved (spec) {
   return {
     type: UPDATE_RESOLVED,
     payload: spec
   }
 }
 
-export function updateUrl(url) {
+export function updateUrl (url) {
   return {type: UPDATE_URL, payload: url}
 }
 
-export function updateJsonSpec(json) {
+export function updateJsonSpec (json) {
   return {type: UPDATE_JSON, payload: json}
 }
 
@@ -60,19 +60,19 @@ export const parseToJson = (str) => ({specActions, specSelectors, errActions}) =
   let json = null
   try {
     str = str || specStr()
-    errActions.clear({ source: "parser" })
+    errActions.clear({ source: 'parser' })
     json = YAML.safeLoad(str)
-  } catch(e) {
+  } catch (e) {
     // TODO: push error to state
     console.error(e)
     return errActions.newSpecErr({
-      source: "parser",
-      level: "error",
+      source: 'parser',
+      level: 'error',
       message: e.reason,
       line: e.mark && e.mark.line ? e.mark.line + 1 : undefined
     })
   }
-  if(json && typeof json === "object") {
+  if (json && typeof json === 'object') {
     return specActions.updateJsonSpec(json)
   }
   return {}
@@ -81,7 +81,7 @@ export const parseToJson = (str) => ({specActions, specSelectors, errActions}) =
 let hasWarnedAboutResolveSpecDeprecation = false
 
 export const resolveSpec = (json, url) => ({specActions, specSelectors, errActions, fn: { fetch, resolve, AST }, getConfigs}) => {
-  if(!hasWarnedAboutResolveSpecDeprecation) {
+  if (!hasWarnedAboutResolveSpecDeprecation) {
     console.warn(`specActions.resolveSpec is deprecated since v3.10.0 and will be removed in v4.0.0; use requestResolvedSubtree instead!`)
     hasWarnedAboutResolveSpecDeprecation = true
   }
@@ -93,10 +93,10 @@ export const resolveSpec = (json, url) => ({specActions, specSelectors, errActio
     responseInterceptor
   } = getConfigs()
 
-  if(typeof(json) === "undefined") {
+  if (typeof (json) === 'undefined') {
     json = specSelectors.specJson()
   }
-  if(typeof(url) === "undefined") {
+  if (typeof (url) === 'undefined') {
     url = specSelectors.url()
   }
 
@@ -112,27 +112,27 @@ export const resolveSpec = (json, url) => ({specActions, specSelectors, errActio
     parameterMacro,
     requestInterceptor,
     responseInterceptor
-  }).then( ({spec, errors}) => {
-      errActions.clear({
-        type: "thrown"
-      })
-      if(Array.isArray(errors) && errors.length > 0) {
-        let preparedErrors = errors
+  }).then(({spec, errors}) => {
+    errActions.clear({
+      type: 'thrown'
+    })
+    if (Array.isArray(errors) && errors.length > 0) {
+      let preparedErrors = errors
           .map(err => {
             console.error(err)
             err.line = err.fullPath ? getLineNumberForPath(specStr, err.fullPath) : null
-            err.path = err.fullPath ? err.fullPath.join(".") : null
-            err.level = "error"
-            err.type = "thrown"
-            err.source = "resolver"
-            Object.defineProperty(err, "message", { enumerable: true, value: err.message })
+            err.path = err.fullPath ? err.fullPath.join('.') : null
+            err.level = 'error'
+            err.type = 'thrown'
+            err.source = 'resolver'
+            Object.defineProperty(err, 'message', { enumerable: true, value: err.message })
             return err
           })
-        errActions.newThrownErrBatch(preparedErrors)
-      }
+      errActions.newThrownErrBatch(preparedErrors)
+    }
 
-      return specActions.updateResolved(spec)
-    })
+    return specActions.updateResolved(spec)
+  })
 }
 
 let requestBatch = []
@@ -140,11 +140,11 @@ let requestBatch = []
 const debResolveSubtrees = debounce(async () => {
   const system = requestBatch.system // Just a reference to the "latest" system
 
-  if(!system) {
+  if (!system) {
     console.error("debResolveSubtrees: don't have a system to operate on, aborting.")
     return
   }
-    const {
+  const {
       errActions,
       errSelectors,
       fn: {
@@ -152,11 +152,11 @@ const debResolveSubtrees = debounce(async () => {
         AST: { getLineNumberForPath }
       },
       specSelectors,
-      specActions,
+      specActions
     } = system
 
-  if(!resolveSubtree) {
-    console.error("Error: Swagger-Client did not provide a `resolveSubtree` method, doing nothing.")
+  if (!resolveSubtree) {
+    console.error('Error: Swagger-Client did not provide a `resolveSubtree` method, doing nothing.')
     return
   }
 
@@ -180,21 +180,21 @@ const debResolveSubtrees = debounce(async () => {
         responseInterceptor
       })
 
-      if(errSelectors.allErrors().size) {
+      if (errSelectors.allErrors().size) {
         errActions.clear({
-          type: "thrown"
+          type: 'thrown'
         })
       }
 
-      if(Array.isArray(errors) && errors.length > 0) {
+      if (Array.isArray(errors) && errors.length > 0) {
         let preparedErrors = errors
           .map(err => {
             err.line = err.fullPath ? getLineNumberForPath(specStr, err.fullPath) : null
-            err.path = err.fullPath ? err.fullPath.join(".") : null
-            err.level = "error"
-            err.type = "thrown"
-            err.source = "resolver"
-            Object.defineProperty(err, "message", { enumerable: true, value: err.message })
+            err.path = err.fullPath ? err.fullPath.join('.') : null
+            err.level = 'error'
+            err.type = 'thrown'
+            err.source = 'resolver'
+            Object.defineProperty(err, 'message', { enumerable: true, value: err.message })
             return err
           })
         errActions.newThrownErrBatch(preparedErrors)
@@ -214,7 +214,7 @@ const debResolveSubtrees = debounce(async () => {
 
     delete requestBatch.system
     requestBatch = [] // Clear stack
-  } catch(e) {
+  } catch (e) {
     console.error(e)
   }
 
@@ -227,10 +227,10 @@ export const requestResolvedSubtree = path => system => {
   debResolveSubtrees()
 }
 
-export function changeParam( path, paramName, paramIn, value, isXml ){
+export function changeParam (path, paramName, paramIn, value, isXml) {
   return {
     type: UPDATE_PARAM,
-    payload:{ path, value, paramName, paramIn, isXml }
+    payload: { path, value, paramName, paramIn, isXml }
   }
 }
 
@@ -251,52 +251,52 @@ export const invalidateResolvedSubtreeCache = () => {
   }
 }
 
-export const validateParams = ( payload, isOAS3 ) =>{
+export const validateParams = (payload, isOAS3) => {
   return {
     type: VALIDATE_PARAMS,
-    payload:{
+    payload: {
       pathMethod: payload,
       isOAS3
     }
   }
 }
 
-export function clearValidateParams( payload ){
+export function clearValidateParams (payload) {
   return {
     type: CLEAR_VALIDATE_PARAMS,
-    payload:{ pathMethod: payload }
+    payload: { pathMethod: payload }
   }
 }
 
-export function changeConsumesValue(path, value) {
+export function changeConsumesValue (path, value) {
   return {
     type: UPDATE_OPERATION_META_VALUE,
-    payload:{ path, value, key: "consumes_value" }
+    payload: { path, value, key: 'consumes_value' }
   }
 }
 
-export function changeProducesValue(path, value) {
+export function changeProducesValue (path, value) {
   return {
     type: UPDATE_OPERATION_META_VALUE,
-    payload:{ path, value, key: "produces_value" }
+    payload: { path, value, key: 'produces_value' }
   }
 }
 
-export const setResponse = ( path, method, res ) => {
+export const setResponse = (path, method, res) => {
   return {
     payload: { path, method, res },
     type: SET_RESPONSE
   }
 }
 
-export const setRequest = ( path, method, req ) => {
+export const setRequest = (path, method, req) => {
   return {
     payload: { path, method, req },
     type: SET_REQUEST
   }
 }
 
-export const setMutatedRequest = ( path, method, req ) => {
+export const setMutatedRequest = (path, method, req) => {
   return {
     payload: { path, method, req },
     type: SET_MUTATED_REQUEST
@@ -323,13 +323,14 @@ export const executeRequest = (req) =>
     // if url is relative, parseUrl makes it absolute by inferring from `window.location`
     req.contextUrl = parseUrl(specSelectors.url()).toString()
 
-    if(op && op.operationId) {
+    if (op && op.operationId) {
       req.operationId = op.operationId
-    } else if(op && pathName && method) {
+    } else if (op && pathName && method) {
       req.operationId = fn.opId(op, pathName, method)
     }
-
-    if(specSelectors.isOAS3()) {
+    console.log('reqxxxbefore')
+    console.log(req)
+    if (specSelectors.isOAS3()) {
       const namespace = `${pathName}:${method}`
 
       req.server = oas3Selectors.selectedServer(namespace) || oas3Selectors.selectedServer()
@@ -343,24 +344,28 @@ export const executeRequest = (req) =>
       req.serverVariables = Object.keys(namespaceVariables).length ? namespaceVariables : globalVariables
 
       req.requestContentType = oas3Selectors.requestContentType(pathName, method)
-      req.responseContentType = oas3Selectors.responseContentType(pathName, method) || "*/*"
+      req.responseContentType = oas3Selectors.responseContentType(pathName, method) || '*/*'
       const requestBody = oas3Selectors.requestBodyValue(pathName, method)
 
-      if(isJSONObject(requestBody)) {
+      if (isJSONObject(requestBody)) {
         req.requestBody = JSON.parse(requestBody)
       } else {
         req.requestBody = requestBody
       }
-
-      console.log(`req:${req}`)
     }
+
+    console.log('reqxxxafter')
+    console.log(req)
 
     let parsedRequest = Object.assign({}, req)
     parsedRequest = fn.buildRequest(parsedRequest)
 
+    console.log('parsedRequest')
+    console.log(parsedRequest)
+
     specActions.setRequest(req.pathName, req.method, parsedRequest)
 
-    let requestInterceptorWrapper = function(r) {
+    let requestInterceptorWrapper = function (r) {
       let mutatedRequest = requestInterceptor.apply(this, [r])
       let parsedMutatedRequest = Object.assign({}, mutatedRequest)
       specActions.setMutatedRequest(req.pathName, req.method, parsedMutatedRequest)
@@ -373,12 +378,11 @@ export const executeRequest = (req) =>
     // track duration of request
     const startTime = Date.now()
 
-
     return fn.execute(req)
-    .then( res => {
+    .then(res => {
       res.duration = Date.now() - startTime
       specActions.setResponse(req.pathName, req.method, res)
-    } )
+    })
     .catch(
       err => specActions.setResponse(req.pathName, req.method, {
         error: true, err: serializeError(err)
@@ -386,10 +390,9 @@ export const executeRequest = (req) =>
     )
   }
 
-
 // I'm using extras as a way to inject properties into the final, `execute` method - It's not great. Anyone have a better idea? @ponelat
-export const execute = ( { path, method, ...extras }={} ) => (system) => {
-  let { fn:{fetch}, specSelectors, specActions } = system
+export const execute = ({ path, method, ...extras } = {}) => (system) => {
+  let { fn: {fetch}, specSelectors, specActions } = system
   let spec = specSelectors.specJsonWithResolvedSubtrees().toJS()
   let scheme = specSelectors.operationScheme(path, method)
   let { requestContentType, responseContentType } = specSelectors.contentTypeValues([path, method]).toJS()
@@ -401,7 +404,8 @@ export const execute = ( { path, method, ...extras }={} ) => (system) => {
     fetch,
     spec,
     pathName: path,
-    method, parameters,
+    method,
+    parameters,
     requestContentType,
     scheme,
     responseContentType
@@ -411,14 +415,14 @@ export const execute = ( { path, method, ...extras }={} ) => (system) => {
 export function clearResponse (path, method) {
   return {
     type: CLEAR_RESPONSE,
-    payload:{ path, method }
+    payload: { path, method }
   }
 }
 
 export function clearRequest (path, method) {
   return {
     type: CLEAR_REQUEST,
-    payload:{ path, method }
+    payload: { path, method }
   }
 }
 
