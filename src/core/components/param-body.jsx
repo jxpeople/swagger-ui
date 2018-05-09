@@ -133,6 +133,12 @@ export default class ParamBody extends PureComponent {
           }
           <label htmlFor="">
             <span>Parameter content type</span>
+            {
+              console.log(consumesValue)
+            }
+            {
+              console.log(consumes)
+            }
             <ContentType value={ consumesValue } contentTypes={ consumes } onChange={onChangeConsumes} className="body-param-content-type" />
           </label>
         </div>
