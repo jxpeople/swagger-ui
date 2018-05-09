@@ -87,9 +87,9 @@ export default class ParameterRow extends Component {
     // const onChangeWrapper = (value) => onChange(param, value)
     const JsonSchemaForm = getComponent("JsonSchemaForm")
     const ParamBody = getComponent("ParamBody")
-    const ParamModel = getComponent("ParamModel")
+    // const ParamModel = getComponent("ParamModel")
     let inType = param.get("in")
-    let bodyParam = inType !== "body" || inType !== "model" ? null
+    let bodyParam = inType !== "body" && inType !== "model" ? null
       : <ParamBody getComponent={getComponent}
                    fn={fn}
                    param={param}
