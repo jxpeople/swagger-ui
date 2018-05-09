@@ -89,7 +89,7 @@ export default class ParameterRow extends Component {
     const ParamBody = getComponent("ParamBody")
     const ParamModel = getComponent("ParamModel")
     let inType = param.get("in")
-    let bodyParam = inType !== "body" ? null
+    let bodyParam = inType !== "body" || inType !== "model" ? null
       : <ParamBody getComponent={getComponent}
                    fn={fn}
                    param={param}
@@ -102,18 +102,18 @@ export default class ParameterRow extends Component {
                    pathMethod={ pathMethod }
       />
 
-    let modelParam = inType !== "model" ? null
-      : <ParamModel getComponent={getComponent}
-                   fn={fn}
-                   param={param}
-                   consumes={ specSelectors.operationConsumes(pathMethod) }
-                   consumesValue={ specSelectors.contentTypeValues(pathMethod).get("requestContentType") }
-                   onChange={onChange}
-                   onChangeConsumes={onChangeConsumes}
-                   isExecute={ isExecute }
-                   specSelectors={ specSelectors }
-                   pathMethod={ pathMethod }
-      />
+    // let modelParam = inType !== "model" ? null
+    //   : <ParamModel getComponent={getComponent}
+    //                fn={fn}
+    //                param={param}
+    //                consumes={ specSelectors.operationConsumes(pathMethod) }
+    //                consumesValue={ specSelectors.contentTypeValues(pathMethod).get("requestContentType") }
+    //                onChange={onChange}
+    //                onChangeConsumes={onChangeConsumes}
+    //                isExecute={ isExecute }
+    //                specSelectors={ specSelectors }
+    //                pathMethod={ pathMethod }
+    //   />
 
     const ModelExample = getComponent("modelExample")
     const Markdown = getComponent("Markdown")
@@ -220,17 +220,6 @@ export default class ParameterRow extends Component {
                                                 specSelectors={ specSelectors }
                                                 schema={ param.get("schema") }
                                                 example={ bodyParam }/>
-              : null
-          }
-
-          {
-            modelParam && schema ? <ModelExample getComponent={ getComponent }
-                                                specPath={specPath.push("schema")}
-                                                getConfigs={ getConfigs }
-                                                isExecute={ isExecute }
-                                                specSelectors={ specSelectors }
-                                                schema={ param.get("schema") }
-                                                example={ modelParam }/>
               : null
           }
 

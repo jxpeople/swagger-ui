@@ -110,7 +110,8 @@ export default class ParamModel extends PureComponent {
     let parameter = specSelectors ? specSelectors.getParameter(pathMethod, param.get("name"), param.get("in")) : param
     let errors = parameter.get("errors", List())
     let consumesValue = specSelectors.contentTypeValues(pathMethod).get("requestContentType")
-    let consumes = this.props.consumes && this.props.consumes.size ? this.props.consumes : ParamModel.defaultProp.consumes
+    let consumes = ParamModel.defaultProp.consumes
+    // let consumes = this.props.consumes && this.props.consumes.size ? this.props.consumes : ParamModel.defaultProp.consumes
 
     let { value, isEditBox } = this.state
 
