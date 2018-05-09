@@ -351,6 +351,8 @@ export const executeRequest = (req) =>
       } else {
         req.requestBody = requestBody
       }
+
+      console.log(`req:${req}`)
     }
 
     let parsedRequest = Object.assign({}, req)
