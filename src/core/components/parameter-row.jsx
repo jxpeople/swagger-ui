@@ -185,7 +185,7 @@ export default class ParameterRow extends Component {
         <td className="col parameters-col_description">
           { param.get("description") ? <Markdown source={ param.get("description") }/> : null }
 
-          { (bodyParam || modelParam || !isExecute) && isDisplayParamEnum ?
+          { (bodyParam || !isExecute) && isDisplayParamEnum ?
             <Markdown className="parameter__enum" source={
                 "<i>Available values</i> : " + paramEnum.map(function(item) {
                     return item
@@ -193,14 +193,14 @@ export default class ParameterRow extends Component {
             : null
           }
 
-          { (bodyParam || modelParam || !isExecute) && paramDefaultValue !== undefined ?
+          { (bodyParam || !isExecute) && paramDefaultValue !== undefined ?
             <Markdown className="parameter__default" source={"<i>Default value</i> : " + paramDefaultValue}/>
             : null
           }
 
           {(isFormData && !isFormDataSupported) && <div>Error: your browser does not support FormData</div>}
 
-          { bodyParam || modelParam || !isExecute ? null
+          { bodyParam || !isExecute ? null
             : <JsonSchemaForm fn={fn}
                               getComponent={getComponent}
                               value={ value }
