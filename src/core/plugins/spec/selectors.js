@@ -352,9 +352,10 @@ export function parameterValues(state, pathMethod, isXml) {
     console.log("parameterValuesxxxx")
     console.log(`${p.get("in")}.${p.get("name")}`)
     console.log(value)
+    console.log(encodeURIComponent(value))
 
     if(p.get("in")==="model") {
-      return hash.set(`query.${p.get("name")}`, value)
+      return hash.set(`query.${p.get("name")}`, encodeURIComponent(value))
     }
 
     return hash.set(`${p.get("in")}.${p.get("name")}`, value)
