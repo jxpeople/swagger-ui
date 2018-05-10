@@ -1,6 +1,8 @@
 import win from "./window"
 
 export default function curl( request ){
+  console.log('curllify')
+  console.log(request)
   let curlified = []
   let type = ""
   let headers = request.get("headers")

@@ -361,12 +361,11 @@ export const executeRequest = (req) => {
 
     console.log('parsedRequest')
     console.log(parsedRequest)
-    console.log(req.scheme + '://' + req.spec.host + req.pathName)
     console.log(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName))
     console.log(req)
 
-    // if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
-    let url = parsedRequest.url
+    if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
+      let url = parsedRequest.url
       // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
     // if (Object.keys(req.parameters).length > 0) {
     //   url = url + '?'
@@ -381,21 +380,23 @@ export const executeRequest = (req) => {
     //   })
     //   url = url.substring(0, url.length - 1)
     // }
-    if (Object.keys(req.parameters).length > 0) {
-      url = url + '?'
-      Object.keys(req.parameters).map((key) => {
-        let value = req.parameters[key]
-        if(value !== undefined) {
-          url = url + key + '=' + value + '&'
-        }
-      })
-      url = url.substring(0, url.length - 1)
-    }
-    console.log('url')
-    console.log(url)
+      if (Object.keys(req.parameters).length > 0) {
+        url = url + '?'
+        Object.keys(req.parameters).map((key) => {
+          let value = req.parameters[key]
+          if (value !== undefined) {
+            url = url + key + '=' + value + '&'
+          }
+        })
+        url = url.substring(0, url.length - 1)
+      }
+      console.log('url')
+      console.log(url)
 
-    parsedRequest.url = url
-    // }
+      parsedRequest.url = url
+      parsedRequest.headers = {'accept': '*/*', 'Content-Type': 'application/x-www-form-urlencoded'}
+      console.log(parsedRequest.headers)
+    }
 
     console.log('parsedRequest')
     console.log(parsedRequest)

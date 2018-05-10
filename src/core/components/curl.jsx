@@ -14,8 +14,10 @@ export default class Curl extends React.Component {
 
   render() {
     let { request } = this.props
+    console.log('curl')
+    console.log(request)
     let curl = curlify(request)
-
+    console.log(curl)
     return (
       <div>
         <h4>Curl</h4>

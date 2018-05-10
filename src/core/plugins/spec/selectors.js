@@ -1,11 +1,11 @@
-import { createSelector } from "reselect"
-import { sorters } from "core/utils"
-import { fromJS, Set, Map, OrderedMap, List } from "immutable"
+import { createSelector } from 'reselect'
+import { sorters } from 'core/utils'
+import { fromJS, Set, Map, OrderedMap, List } from 'immutable'
 
-const DEFAULT_TAG = "default"
+const DEFAULT_TAG = 'default'
 
 const OPERATION_METHODS = [
-  "get", "put", "post", "delete", "options", "head", "patch", "trace"
+  'get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'
 ]
 
 const state = state => {
@@ -14,41 +14,41 @@ const state = state => {
 
 export const lastError = createSelector(
   state,
-  spec => spec.get("lastError")
+  spec => spec.get('lastError')
 )
 
 export const url = createSelector(
   state,
-  spec => spec.get("url")
+  spec => spec.get('url')
 )
 
 export const specStr = createSelector(
   state,
-  spec => spec.get("spec") || ""
+  spec => spec.get('spec') || ''
 )
 
 export const specSource = createSelector(
   state,
-  spec => spec.get("specSource") || "not-editor"
+  spec => spec.get('specSource') || 'not-editor'
 )
 
 export const specJson = createSelector(
   state,
-  spec => spec.get("json", Map())
+  spec => spec.get('json', Map())
 )
 
 export const specResolved = createSelector(
   state,
-  spec => spec.get("resolved", Map())
+  spec => spec.get('resolved', Map())
 )
 
 export const specResolvedSubtree = (state, path) => {
-  return state.getIn(["resolvedSubtrees", ...path], undefined)
+  return state.getIn(['resolvedSubtrees', ...path], undefined)
 }
 
 const mergerFn = (oldVal, newVal) => {
-  if(Map.isMap(oldVal) && Map.isMap(newVal)) {
-    if(newVal.get("$$ref")) {
+  if (Map.isMap(oldVal) && Map.isMap(newVal)) {
+    if (newVal.get('$$ref')) {
       // resolver artifacts indicated that this key was directly resolved
       // so we should drop the old value entirely
       return newVal
@@ -68,8 +68,8 @@ export const specJsonWithResolvedSubtrees = createSelector(
   state,
   spec => OrderedMap().mergeWith(
     mergerFn,
-    spec.get("json"),
-    spec.get("resolvedSubtrees")
+    spec.get('json'),
+    spec.get('resolvedSubtrees')
   )
 )
 
@@ -90,17 +90,17 @@ export const isOAS3 = createSelector(
 
 export const info = createSelector(
   spec,
-	spec => returnSelfOrNewMap(spec && spec.get("info"))
+	spec => returnSelfOrNewMap(spec && spec.get('info'))
 )
 
 export const externalDocs = createSelector(
   spec,
-	spec => returnSelfOrNewMap(spec && spec.get("externalDocs"))
+	spec => returnSelfOrNewMap(spec && spec.get('externalDocs'))
 )
 
 export const version = createSelector(
 	info,
-	info => info && info.get("version")
+	info => info && info.get('version')
 )
 
 export const semver = createSelector(
@@ -110,27 +110,26 @@ export const semver = createSelector(
 
 export const paths = createSelector(
 	specJsonWithResolvedSubtrees,
-	spec => spec.get("paths")
+	spec => spec.get('paths')
 )
 
 export const operations = createSelector(
   paths,
   paths => {
-    if(!paths || paths.size < 1)
-      return List()
+    if (!paths || paths.size < 1) { return List() }
 
     let list = List()
 
-    if(!paths || !paths.forEach) {
+    if (!paths || !paths.forEach) {
       return List()
     }
 
     paths.forEach((path, pathName) => {
-      if(!path || !path.forEach) {
+      if (!path || !path.forEach) {
         return {}
       }
       path.forEach((operation, method) => {
-        if(OPERATION_METHODS.indexOf(method) < 0) {
+        if (OPERATION_METHODS.indexOf(method) < 0) {
           return
         }
         list = list.push(fromJS({
@@ -148,49 +147,48 @@ export const operations = createSelector(
 
 export const consumes = createSelector(
   spec,
-  spec => Set(spec.get("consumes"))
+  spec => Set(spec.get('consumes'))
 )
 
 export const produces = createSelector(
   spec,
-  spec => Set(spec.get("produces"))
+  spec => Set(spec.get('produces'))
 )
 
 export const security = createSelector(
     spec,
-    spec => spec.get("security", List())
+    spec => spec.get('security', List())
 )
 
 export const securityDefinitions = createSelector(
     spec,
-    spec => spec.get("securityDefinitions")
+    spec => spec.get('securityDefinitions')
 )
 
-
-export const findDefinition = ( state, name ) => {
-  const resolvedRes = state.getIn(["resolvedSubtrees", "definitions", name], null)
-  const unresolvedRes = state.getIn(["json", "definitions", name], null)
+export const findDefinition = (state, name) => {
+  const resolvedRes = state.getIn(['resolvedSubtrees', 'definitions', name], null)
+  const unresolvedRes = state.getIn(['json', 'definitions', name], null)
   return resolvedRes || unresolvedRes || null
 }
 
 export const definitions = createSelector(
   spec,
-  spec => spec.get("definitions") || Map()
+  spec => spec.get('definitions') || Map()
 )
 
 export const basePath = createSelector(
     spec,
-    spec => spec.get("basePath")
+    spec => spec.get('basePath')
 )
 
 export const host = createSelector(
     spec,
-    spec => spec.get("host")
+    spec => spec.get('host')
 )
 
 export const schemes = createSelector(
     spec,
-    spec => spec.get("schemes", Map())
+    spec => spec.get('schemes', Map())
 )
 
 export const operationsWithRootInherited = createSelector(
@@ -198,15 +196,15 @@ export const operationsWithRootInherited = createSelector(
   consumes,
   produces,
   (operations, consumes, produces) => {
-    return operations.map( ops => ops.update("operation", op => {
-      if(op) {
-        if(!Map.isMap(op)) { return }
-        return op.withMutations( op => {
-          if ( !op.get("consumes") ) {
-            op.update("consumes", a => Set(a).merge(consumes))
+    return operations.map(ops => ops.update('operation', op => {
+      if (op) {
+        if (!Map.isMap(op)) { return }
+        return op.withMutations(op => {
+          if (!op.get('consumes')) {
+            op.update('consumes', a => Set(a).merge(consumes))
           }
-          if ( !op.get("produces") ) {
-            op.update("produces", a => Set(a).merge(produces))
+          if (!op.get('produces')) {
+            op.update('produces', a => Set(a).merge(produces))
           }
           return op
         })
@@ -214,33 +212,31 @@ export const operationsWithRootInherited = createSelector(
         // return something with Immutable methods
         return Map()
       }
-
     }))
   }
 )
 
 export const tags = createSelector(
   spec,
-  json => json.get("tags", List())
+  json => json.get('tags', List())
 )
 
 export const tagDetails = (state, tag) => {
   let currentTags = tags(state) || List()
-  return currentTags.filter(Map.isMap).find(t => t.get("name") === tag, Map())
+  return currentTags.filter(Map.isMap).find(t => t.get('name') === tag, Map())
 }
 
 export const operationsWithTags = createSelector(
   operationsWithRootInherited,
   tags,
   (operations, tags) => {
-    return operations.reduce( (taggedMap, op) => {
-      let tags = Set(op.getIn(["operation","tags"]))
-      if(tags.count() < 1)
-        return taggedMap.update(DEFAULT_TAG, List(), ar => ar.push(op))
-      return tags.reduce( (res, tag) => res.update(tag, List(), (ar) => ar.push(op)), taggedMap )
-    }, tags.reduce( (taggedMap, tag) => {
-      return taggedMap.set(tag.get("name"), List())
-    } , OrderedMap()))
+    return operations.reduce((taggedMap, op) => {
+      let tags = Set(op.getIn(['operation', 'tags']))
+      if (tags.count() < 1) { return taggedMap.update(DEFAULT_TAG, List(), ar => ar.push(op)) }
+      return tags.reduce((res, tag) => res.update(tag, List(), (ar) => ar.push(op)), taggedMap)
+    }, tags.reduce((taggedMap, tag) => {
+      return taggedMap.set(tag.get('name'), List())
+    }, OrderedMap()))
   }
 )
 
@@ -250,12 +246,12 @@ export const taggedOperations = (state) => ({ getConfigs }) => {
     .sortBy(
       (val, key) => key, // get the name of the tag to be passed to the sorter
       (tagA, tagB) => {
-        let sortFn = (typeof tagsSorter === "function" ? tagsSorter : sorters.tagsSorter[ tagsSorter ])
+        let sortFn = (typeof tagsSorter === 'function' ? tagsSorter : sorters.tagsSorter[ tagsSorter ])
         return (!sortFn ? null : sortFn(tagA, tagB))
       }
     )
     .map((ops, tag) => {
-      let sortFn = (typeof operationsSorter === "function" ? operationsSorter : sorters.operationsSorter[ operationsSorter ])
+      let sortFn = (typeof operationsSorter === 'function' ? operationsSorter : sorters.operationsSorter[ operationsSorter ])
       let operations = (!sortFn ? ops : ops.sort(sortFn))
 
       return Map({ tagDetails: tagDetails(state, tag), operations: operations })
@@ -264,17 +260,17 @@ export const taggedOperations = (state) => ({ getConfigs }) => {
 
 export const responses = createSelector(
   state,
-  state => state.get( "responses", Map() )
+  state => state.get('responses', Map())
 )
 
 export const requests = createSelector(
     state,
-    state => state.get( "requests", Map() )
+    state => state.get('requests', Map())
 )
 
 export const mutatedRequests = createSelector(
     state,
-    state => state.get( "mutatedRequests", Map() )
+    state => state.get('mutatedRequests', Map())
 )
 
 export const responseFor = (state, path, method) => {
@@ -295,95 +291,96 @@ export const allowTryItOutFor = () => {
 }
 
 export const operationWithMeta = (state, path, method) => {
-  const op = specJsonWithResolvedSubtrees(state).getIn(["paths", path, method], Map())
-  const meta = state.getIn(["meta", "paths", path, method], Map())
+  const op = specJsonWithResolvedSubtrees(state).getIn(['paths', path, method], Map())
+  const meta = state.getIn(['meta', 'paths', path, method], Map())
 
-  const mergedParams = op.get("parameters", List()).map((param) => {
+  const mergedParams = op.get('parameters', List()).map((param) => {
     return Map().merge(
       param,
-      meta.getIn(["parameters", `${param.get("name")}.${param.get("in")}`])
+      meta.getIn(['parameters', `${param.get('name')}.${param.get('in')}`])
     )
   })
 
   return Map()
     .merge(op, meta)
-    .set("parameters", mergedParams)
+    .set('parameters', mergedParams)
 }
 
 export const parameterWithMeta = (state, pathMethod, paramName, paramIn) => {
-  const opParams = specJsonWithResolvedSubtrees(state).getIn(["paths", ...pathMethod, "parameters"], Map())
-  const metaParams = state.getIn(["meta", "paths", ...pathMethod, "parameters"], Map())
+  const opParams = specJsonWithResolvedSubtrees(state).getIn(['paths', ...pathMethod, 'parameters'], Map())
+  const metaParams = state.getIn(['meta', 'paths', ...pathMethod, 'parameters'], Map())
 
   const mergedParams = opParams.map((param) => {
     return Map().merge(
       param,
-      metaParams.get(`${param.get("name")}.${param.get("in")}`)
+      metaParams.get(`${param.get('name')}.${param.get('in')}`)
     )
   })
 
-  return mergedParams.find(param => param.get("in") === paramIn && param.get("name") === paramName, Map())
+  return mergedParams.find(param => param.get('in') === paramIn && param.get('name') === paramName, Map())
 }
 
 // Get the parameter value by parameter name
-export function getParameter(state, pathMethod, name, inType) {
+export function getParameter (state, pathMethod, name, inType) {
   pathMethod = pathMethod || []
-  let params = state.getIn(["meta", "paths", ...pathMethod, "parameters"], fromJS([]))
-  return params.find( (p) => {
-    return Map.isMap(p) && p.get("name") === name && p.get("in") === inType
+  let params = state.getIn(['meta', 'paths', ...pathMethod, 'parameters'], fromJS([]))
+  return params.find((p) => {
+    return Map.isMap(p) && p.get('name') === name && p.get('in') === inType
   }) || Map() // Always return a map
 }
 
 export const hasHost = createSelector(
   spec,
   spec => {
-    const host = spec.get("host")
-    return typeof host === "string" && host.length > 0 && host[0] !== "/"
+    const host = spec.get('host')
+    return typeof host === 'string' && host.length > 0 && host[0] !== '/'
   }
 )
 
 // Get the parameter values, that the user filled out
-export function parameterValues(state, pathMethod, isXml) {
+export function parameterValues (state, pathMethod, isXml) {
   pathMethod = pathMethod || []
   // let paramValues = state.getIn(["meta", "paths", ...pathMethod, "parameters"], fromJS([]))
-  let paramValues = operationWithMeta(state, ...pathMethod).get("parameters", List())
-  return paramValues.reduce( (hash, p) => {
-    let value = isXml && p.get("in") === "body" ? p.get("value_xml") : p.get("value")
+  let paramValues = operationWithMeta(state, ...pathMethod).get('parameters', List())
+  return paramValues.reduce((hash, p) => {
+    let value = isXml && p.get('in') === 'body' ? p.get('value_xml') : p.get('value')
 
-    if(p.get("in")==="model") {
-      return hash.set(`query.${p.get("name")}`, encodeURIComponent(value))
+    if (p.get('in') === 'model') {
+      console.log(`query.${p.get('name')}`)
+      return hash.set(`query.${p.get('name')}`, encodeURIComponent(value))
     }
 
-    return hash.set(`${p.get("in")}.${p.get("name")}`, value)
+    return hash.set(`${p.get('in')}.${p.get('name')}`, value)
   }, fromJS({}))
 }
 
 // True if any parameter includes `in: ?`
-export function parametersIncludeIn(parameters, inValue="") {
-  if(List.isList(parameters)) {
-    return parameters.some( p => Map.isMap(p) && p.get("in") === inValue )
+export function parametersIncludeIn (parameters, inValue = '') {
+  if (List.isList(parameters)) {
+    return parameters.some(p => Map.isMap(p) && p.get('in') === inValue)
   }
 }
 
 // True if any parameter includes `type: ?`
-export function parametersIncludeType(parameters, typeValue="") {
-  if(List.isList(parameters)) {
-    return parameters.some( p => Map.isMap(p) && p.get("type") === typeValue )
+export function parametersIncludeType (parameters, typeValue = '') {
+  if (List.isList(parameters)) {
+    return parameters.some(p => Map.isMap(p) && p.get('type') === typeValue)
   }
 }
 
 // Get the consumes/produces value that the user selected
-export function contentTypeValues(state, pathMethod) {
+export function contentTypeValues (state, pathMethod) {
   pathMethod = pathMethod || []
-  let op = specJsonWithResolvedSubtrees(state).getIn(["paths", ...pathMethod], fromJS({}))
-  let meta = state.getIn(["meta", "paths", ...pathMethod], fromJS({}))
+  let op = specJsonWithResolvedSubtrees(state).getIn(['paths', ...pathMethod], fromJS({}))
+  let meta = state.getIn(['meta', 'paths', ...pathMethod], fromJS({}))
   let producesValue = currentProducesFor(state, pathMethod)
 
-  const parameters = op.get("parameters") || new List()
+  const parameters = op.get('parameters') || new List()
 
   const requestContentType = (
-    meta.get("consumes_value") ? meta.get("consumes_value")
-      : parametersIncludeType(parameters, "file") ? "multipart/form-data"
-      : parametersIncludeType(parameters, "formData") ? "application/x-www-form-urlencoded"
+    meta.get('consumes_value') ? meta.get('consumes_value')
+      : parametersIncludeType(parameters, 'file') ? 'multipart/form-data'
+      : parametersIncludeType(parameters, 'formData') ? 'application/x-www-form-urlencoded'
       : undefined
   )
 
@@ -394,49 +391,48 @@ export function contentTypeValues(state, pathMethod) {
 }
 
 // Get the consumes/produces by path
-export function operationConsumes(state, pathMethod) {
+export function operationConsumes (state, pathMethod) {
   pathMethod = pathMethod || []
-  return specJsonWithResolvedSubtrees(state).getIn(["paths", ...pathMethod, "consumes"], fromJS({}))
+  return specJsonWithResolvedSubtrees(state).getIn(['paths', ...pathMethod, 'consumes'], fromJS({}))
 }
 
 // Get the currently selected produces value for an operation
-export function currentProducesFor(state, pathMethod) {
+export function currentProducesFor (state, pathMethod) {
   pathMethod = pathMethod || []
 
-  const operation = specJsonWithResolvedSubtrees(state).getIn([ "paths", ...pathMethod], null)
+  const operation = specJsonWithResolvedSubtrees(state).getIn([ 'paths', ...pathMethod], null)
 
-  if(operation === null) {
+  if (operation === null) {
     // return nothing if the operation does not exist
     return
   }
 
-  const currentProducesValue = state.getIn(["meta", "paths", ...pathMethod, "produces_value"], null)
-  const firstProducesArrayItem = operation.getIn(["produces", 0], null)
+  const currentProducesValue = state.getIn(['meta', 'paths', ...pathMethod, 'produces_value'], null)
+  const firstProducesArrayItem = operation.getIn(['produces', 0], null)
 
-  return currentProducesValue || firstProducesArrayItem || "application/json"
-
+  return currentProducesValue || firstProducesArrayItem || 'application/json'
 }
 
-export const operationScheme = ( state, path, method ) => {
-  let url = state.get("url")
+export const operationScheme = (state, path, method) => {
+  let url = state.get('url')
   let matchResult = url.match(/^([a-z][a-z0-9+\-.]*):/)
   let urlScheme = Array.isArray(matchResult) ? matchResult[1] : null
 
-  return state.getIn(["scheme", path, method]) || state.getIn(["scheme", "_defaultScheme"]) || urlScheme || ""
+  return state.getIn(['scheme', path, method]) || state.getIn(['scheme', '_defaultScheme']) || urlScheme || ''
 }
 
-export const canExecuteScheme = ( state, path, method ) => {
-  return ["http", "https"].indexOf(operationScheme(state, path, method)) > -1
+export const canExecuteScheme = (state, path, method) => {
+  return ['http', 'https'].indexOf(operationScheme(state, path, method)) > -1
 }
 
-export const validateBeforeExecute = ( state, pathMethod ) => {
+export const validateBeforeExecute = (state, pathMethod) => {
   pathMethod = pathMethod || []
-  let paramValues = state.getIn(["meta", "paths", ...pathMethod, "parameters"], fromJS([]))
+  let paramValues = state.getIn(['meta', 'paths', ...pathMethod, 'parameters'], fromJS([]))
   let isValid = true
 
-  paramValues.forEach( (p) => {
-    let errors = p.get("errors")
-    if ( errors && errors.count() ) {
+  paramValues.forEach((p) => {
+    let errors = p.get('errors')
+    if (errors && errors.count()) {
       isValid = false
     }
   })
@@ -444,7 +440,7 @@ export const validateBeforeExecute = ( state, pathMethod ) => {
   return isValid
 }
 
-function returnSelfOrNewMap(obj) {
+function returnSelfOrNewMap (obj) {
   // returns obj if obj is an Immutable map, else returns a new Map
   return Map.isMap(obj) ? obj : new Map()
 }
