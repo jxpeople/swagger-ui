@@ -386,10 +386,6 @@ export function contentTypeValues(state, pathMethod) {
   const parameters = op.get("parameters") || new List()
 
   const requestContentType = (
-    console.log("parameters-contentTypeValues"),
-    console.log(meta.get("consumes_value")),
-    console.log(parametersIncludeType(parameters, "file")),
-
     meta.get("consumes_value") ? meta.get("consumes_value")
       : parametersIncludeType(parameters, "file") ? "multipart/form-data"
       : parametersIncludeType(parameters, "formData") ? "application/x-www-form-urlencoded"

@@ -358,10 +358,8 @@ export const executeRequest = (req) =>
     console.log(req)
 
     let parsedRequest = Object.assign({}, req)
+    parsedRequest = fn.buildRequest(parsedRequest)
 
-    console.log('param1')
-    console.log(parsedRequest.parameters['book'])
-    console.log(Object.keys(parsedRequest.parameters).length)
     if (parsedRequest.pathName.startsWith('/dubbo-api/')) {
       let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
       if (Object.keys(parsedRequest.parameters).length > 0) {
@@ -375,9 +373,6 @@ export const executeRequest = (req) =>
       console.log(url)
 
       parsedRequest.url = url
-      parsedRequest.credentials = 'same-origin'
-    } else {
-      parsedRequest = fn.buildRequest(parsedRequest)
     }
 
     console.log('parsedRequest')
@@ -397,6 +392,9 @@ export const executeRequest = (req) =>
 
     // track duration of request
     const startTime = Date.now()
+
+    console.log('last req')
+    console.log(req)
 
     return fn.execute(req)
     .then(res => {
