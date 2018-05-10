@@ -313,10 +313,10 @@ export const logRequest = (req) => {
 
 // Actually fire the request via fn.execute
 // (For debugging) and ease of testing
-export const executeRequest = (req) =>
-  ({fn, specActions, specSelectors, getConfigs, oas3Selectors}) => {
-    let { pathName, method, operation } = req
-    let { requestInterceptor, responseInterceptor } = getConfigs()
+export const executeRequest = (req) => {
+  return ({fn, specActions, specSelectors, getConfigs, oas3Selectors}) => {
+    let {pathName, method, operation} = req
+    let {requestInterceptor, responseInterceptor} = getConfigs()
 
     let op = operation.toJS()
 
@@ -328,8 +328,7 @@ export const executeRequest = (req) =>
     } else if (op && pathName && method) {
       req.operationId = fn.opId(op, pathName, method)
     }
-    console.log('reqxxxbefore')
-    console.log(req)
+
     if (specSelectors.isOAS3()) {
       const namespace = `${pathName}:${method}`
 
@@ -339,7 +338,7 @@ export const executeRequest = (req) =>
         server: req.server,
         namespace
       }).toJS()
-      const globalVariables = oas3Selectors.serverVariables({ server: req.server }).toJS()
+      const globalVariables = oas3Selectors.serverVariables({server: req.server}).toJS()
 
       req.serverVariables = Object.keys(namespaceVariables).length ? namespaceVariables : globalVariables
 
@@ -360,8 +359,15 @@ export const executeRequest = (req) =>
     let parsedRequest = Object.assign({}, req)
     parsedRequest = fn.buildRequest(parsedRequest)
 
-    if (parsedRequest.pathName.startsWith('/dubbo-api/')) {
-      let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
+    console.log('parsedRequest')
+    console.log(parsedRequest)
+    console.log(req.scheme + '://' + req.spec.host + req.pathName)
+    console.log(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName))
+    console.log(req)
+
+    if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
+      let url = parsedRequest.url
+      // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
       if (Object.keys(parsedRequest.parameters).length > 0) {
         url = url + '?'
         Object.keys(parsedRequest.parameters).map((key) => (
@@ -397,16 +403,17 @@ export const executeRequest = (req) =>
     console.log(req)
 
     return fn.execute(req)
-    .then(res => {
-      res.duration = Date.now() - startTime
-      specActions.setResponse(req.pathName, req.method, res)
-    })
-    .catch(
-      err => specActions.setResponse(req.pathName, req.method, {
-        error: true, err: serializeError(err)
+      .then(res => {
+        res.duration = Date.now() - startTime
+        specActions.setResponse(req.pathName, req.method, res)
       })
-    )
-  }
+      .catch(
+        err => specActions.setResponse(req.pathName, req.method, {
+          error: true, err: serializeError(err)
+        })
+      )
+  };
+}
 
 // I'm using extras as a way to inject properties into the final, `execute` method - It's not great. Anyone have a better idea? @ponelat
 export const execute = ({ path, method, ...extras } = {}) => (system) => {
