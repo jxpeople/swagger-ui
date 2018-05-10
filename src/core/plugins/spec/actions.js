@@ -368,10 +368,10 @@ export const executeRequest = (req) => {
     if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
       let url = parsedRequest.url
       // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
-      if (Object.keys(parsedRequest.parameters).length > 0) {
+      if (Object.keys(req.parameters).length > 0) {
         url = url + '?'
-        Object.keys(parsedRequest.parameters).map((key) => (
-          url = url + key + '=' + parsedRequest.parameters[key] + '&'
+        Object.keys(req.parameters).map((key) => (
+          url = url + key + '=' + req.parameters[key] + '&'
         ))
         url = url.substring(0, url.length - 1)
       }
