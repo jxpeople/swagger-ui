@@ -368,14 +368,24 @@ export const executeRequest = (req) => {
     // if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
     let url = parsedRequest.url
       // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
+    // if (Object.keys(req.parameters).length > 0) {
+    //   url = url + '?'
+    //   Object.keys(req.parameters).map((key) => {
+    //     let value = req.parameters[key]
+    //     if(value !== undefined) {
+    //       if (key.indexOf('.') > -1) {
+    //         key = key.substring(key.indexOf('.') + 1)
+    //       }
+    //       url = url + key + '=' + value + '&'
+    //     }
+    //   })
+    //   url = url.substring(0, url.length - 1)
+    // }
     if (Object.keys(req.parameters).length > 0) {
       url = url + '?'
       Object.keys(req.parameters).map((key) => {
         let value = req.parameters[key]
         if(value !== undefined) {
-          if (key.indexOf('.') > -1) {
-            key = key.substring(key.indexOf('.') + 1)
-          }
           url = url + key + '=' + value + '&'
         }
       })
