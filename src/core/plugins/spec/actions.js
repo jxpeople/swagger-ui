@@ -365,21 +365,27 @@ export const executeRequest = (req) => {
     console.log(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName))
     console.log(req)
 
-    if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
-      let url = parsedRequest.url
+    // if(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
+    let url = parsedRequest.url
       // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
-      if (Object.keys(req.parameters).length > 0) {
-        url = url + '?'
-        Object.keys(req.parameters).map((key) => (
-          url = url + key + '=' + req.parameters[key] + '&'
-        ))
-        url = url.substring(0, url.length - 1)
-      }
-      console.log('url')
-      console.log(url)
-
-      parsedRequest.url = url
+    if (Object.keys(req.parameters).length > 0) {
+      url = url + '?'
+      Object.keys(req.parameters).map((key) => {
+        let value = req.parameters[key]
+        if(value !== undefined) {
+          if (key.indexOf('.') > -1) {
+            key = key.substring(key.indexOf('.') + 1)
+          }
+          url = url + key + '=' + value + '&'
+        }
+      })
+      url = url.substring(0, url.length - 1)
     }
+    console.log('url')
+    console.log(url)
+
+    parsedRequest.url = url
+    // }
 
     console.log('parsedRequest')
     console.log(parsedRequest)
@@ -412,7 +418,7 @@ export const executeRequest = (req) => {
           error: true, err: serializeError(err)
         })
       )
-  };
+  }
 }
 
 // I'm using extras as a way to inject properties into the final, `execute` method - It's not great. Anyone have a better idea? @ponelat
