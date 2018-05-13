@@ -354,11 +354,14 @@ export const executeRequest = (req) => {
       }
     }
 
+    console.log(req)
     let parsedRequest = Object.assign({}, req)
+    console.log(parsedRequest)
     parsedRequest = fn.buildRequest(parsedRequest)
 
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
-      let url = parsedRequest.url
+    // if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/v2/pet')) {
+      let url = req.scheme + '://' + req.spec.host + req.pathName
       if (Object.keys(req.parameters).length > 0) {
         url = url + '?'
         Object.keys(req.parameters).map((key) => {
@@ -393,10 +396,11 @@ export const executeRequest = (req) => {
     const startTime = Date.now()
 
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
+      axios.post(parsedRequest.url, {})
       return axios.get(parsedRequest.url)
         .then(res => {
           res.text = res.request.response
-          res.url = req.scheme + '://' + req.spec.host + '/v2/pet'
+          res.url = req.scheme + '://' + req.spec.host + req.pathName
           res.duration = Date.now() - startTime
           specActions.setResponse(req.pathName, req.method, res)
         }).catch(
