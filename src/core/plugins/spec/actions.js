@@ -6,6 +6,7 @@ import isString from 'lodash/isString'
 import debounce from 'lodash/debounce'
 import set from 'lodash/set'
 import { isJSONObject } from 'core/utils'
+import axios from './axios.min'
 
 // Actions conform to FSA (flux-standard-actions)
 // {type: string,payload: Any|Error, meta: obj, error: bool}
@@ -353,53 +354,28 @@ export const executeRequest = (req) => {
       }
     }
 
-    console.log('reqxxxafter')
-    console.log(req)
-
     let parsedRequest = Object.assign({}, req)
     parsedRequest = fn.buildRequest(parsedRequest)
 
-    console.log('parsedRequest')
-    console.log(parsedRequest)
-    console.log(parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName))
-    console.log(req)
-
-    if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + req.pathName)) {
+    if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
       let url = parsedRequest.url
-      // let url = parsedRequest.scheme + '://' + parsedRequest.spec.host + parsedRequest.pathName
-    // if (Object.keys(req.parameters).length > 0) {
-    //   url = url + '?'
-    //   Object.keys(req.parameters).map((key) => {
-    //     let value = req.parameters[key]
-    //     if(value !== undefined) {
-    //       if (key.indexOf('.') > -1) {
-    //         key = key.substring(key.indexOf('.') + 1)
-    //       }
-    //       url = url + key + '=' + value + '&'
-    //     }
-    //   })
-    //   url = url.substring(0, url.length - 1)
-    // }
       if (Object.keys(req.parameters).length > 0) {
         url = url + '?'
         Object.keys(req.parameters).map((key) => {
           let value = req.parameters[key]
           if (value !== undefined) {
+            if (key.indexOf('.') > -1) {
+              key = key.substring(key.indexOf('.') + 1)
+            }
             url = url + key + '=' + value + '&'
           }
         })
         url = url.substring(0, url.length - 1)
       }
-      console.log('url')
-      console.log(url)
 
       parsedRequest.url = url
       parsedRequest.headers = {'accept': '*/*', 'Content-Type': 'application/x-www-form-urlencoded'}
-      console.log(parsedRequest.headers)
     }
-
-    console.log('parsedRequest')
-    console.log(parsedRequest)
 
     specActions.setRequest(req.pathName, req.method, parsedRequest)
 
@@ -416,15 +392,24 @@ export const executeRequest = (req) => {
     // track duration of request
     const startTime = Date.now()
 
-    console.log('last req')
-    console.log(req)
-
+    if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
+      return axios.get(parsedRequest.url)
+        .then(res => {
+          res.text = res.request.response
+          res.url = req.scheme + '://' + req.spec.host + '/v2/pet'
+          res.duration = Date.now() - startTime
+          specActions.setResponse(req.pathName, req.method, res)
+        }).catch(
+          err => specActions.setResponse(req.pathName, req.method, {
+            error: true, err: serializeError(err)
+          })
+        )
+    }
     return fn.execute(req)
       .then(res => {
         res.duration = Date.now() - startTime
         specActions.setResponse(req.pathName, req.method, res)
-      })
-      .catch(
+      }).catch(
         err => specActions.setResponse(req.pathName, req.method, {
           error: true, err: serializeError(err)
         })
