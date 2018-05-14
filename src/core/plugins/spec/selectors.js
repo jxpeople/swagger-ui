@@ -345,10 +345,10 @@ export function parameterValues (state, pathMethod, isXml) {
   return paramValues.reduce((hash, p) => {
     let value = isXml && p.get('in') === 'body' ? p.get('value_xml') : p.get('value')
 
-    if (p.get('in') === 'model') {
-      console.log(`query.${p.get('name')}`)
-      return hash.set(`query.${p.get('name')}`, encodeURIComponent(value))
-    }
+    // if (p.get('in') === 'model') {
+    //   return hash.set(`query.${p.get('name')}`, value)
+      // return hash.set(`query.${p.get('name')}`, encodeURIComponent(value))
+    // }
 
     return hash.set(`${p.get('in')}.${p.get('name')}`, value)
   }, fromJS({}))
