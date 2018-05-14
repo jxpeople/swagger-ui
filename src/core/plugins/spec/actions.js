@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce'
 import set from 'lodash/set'
 import { isJSONObject } from 'core/utils'
 import axios from './axios.min'
+// import {URLSearchParams} from 'jsdom'
 
 // Actions conform to FSA (flux-standard-actions)
 // {type: string,payload: Any|Error, meta: obj, error: bool}
@@ -354,31 +355,48 @@ export const executeRequest = (req) => {
       }
     }
 
-    console.log(req)
     let parsedRequest = Object.assign({}, req)
-    console.log(parsedRequest)
     parsedRequest = fn.buildRequest(parsedRequest)
 
+    // post
+    const params = new URLSearchParams()
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
-    // if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/v2/pet')) {
       let url = req.scheme + '://' + req.spec.host + req.pathName
       if (Object.keys(req.parameters).length > 0) {
-        url = url + '?'
         Object.keys(req.parameters).map((key) => {
           let value = req.parameters[key]
           if (value !== undefined) {
             if (key.indexOf('.') > -1) {
               key = key.substring(key.indexOf('.') + 1)
             }
-            url = url + key + '=' + value + '&'
+            params.append(key, value)
           }
         })
-        url = url.substring(0, url.length - 1)
       }
 
       parsedRequest.url = url
       parsedRequest.headers = {'accept': '*/*', 'Content-Type': 'application/x-www-form-urlencoded'}
     }
+
+    // if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
+    //   let url = req.scheme + '://' + req.spec.host + req.pathName
+    //   if (Object.keys(req.parameters).length > 0) {
+    //     url = url + '?'
+    //     Object.keys(req.parameters).map((key) => {
+    //       let value = req.parameters[key]
+    //       if (value !== undefined) {
+    //         if (key.indexOf('.') > -1) {
+    //           key = key.substring(key.indexOf('.') + 1)
+    //         }
+    //         url = url + key + '=' + value + '&'
+    //       }
+    //     })
+    //     url = url.substring(0, url.length - 1)
+    //   }
+    //
+    //   parsedRequest.url = url
+    //   parsedRequest.headers = {'accept': '*/*', 'Content-Type': 'application/x-www-form-urlencoded'}
+    // }
 
     specActions.setRequest(req.pathName, req.method, parsedRequest)
 
@@ -396,7 +414,7 @@ export const executeRequest = (req) => {
     const startTime = Date.now()
 
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
-      return axios.get(parsedRequest.url)
+      return axios.post(parsedRequest.url, params)
         .then(res => {
           res.text = res.request.response
           res.url = req.scheme + '://' + req.spec.host + req.pathName
@@ -408,6 +426,19 @@ export const executeRequest = (req) => {
           })
         )
     }
+    // if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
+    //   return axios.get(parsedRequest.url)
+    //     .then(res => {
+    //       res.text = res.request.response
+    //       res.url = req.scheme + '://' + req.spec.host + req.pathName
+    //       res.duration = Date.now() - startTime
+    //       specActions.setResponse(req.pathName, req.method, res)
+    //     }).catch(
+    //       err => specActions.setResponse(req.pathName, req.method, {
+    //         error: true, err: serializeError(err)
+    //       })
+    //     )
+    // }
     return fn.execute(req)
       .then(res => {
         res.duration = Date.now() - startTime
