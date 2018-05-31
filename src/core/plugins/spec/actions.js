@@ -412,7 +412,7 @@ export const executeRequest = (req) => {
 
     // track duration of request
     const startTime = Date.now()
-
+    debugger
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
       console.log('url')
       console.log(parsedRequest.url)
