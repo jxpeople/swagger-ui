@@ -414,6 +414,10 @@ export const executeRequest = (req) => {
     const startTime = Date.now()
 
     if (parsedRequest.url.startsWith(req.scheme + '://' + req.spec.host + '/dubbo-api')) {
+      console.log('url')
+      console.log(parsedRequest.url)
+      console.log('params')
+      console.log(params)
       return axios.post(parsedRequest.url, params)
         .then(res => {
           res.text = res.request.response
